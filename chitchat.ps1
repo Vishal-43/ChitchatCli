@@ -1,0 +1,1 @@
+Start-Process -FilePath "chitchat.bat" -NoNewWindow -Wait

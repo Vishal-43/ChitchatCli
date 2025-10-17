@@ -1,22 +1,23 @@
-Write-Host "Starting ChitchatCli setup..."
-Write-Host "Made by legend"
-Write-Host "Visit github.com/Vishal-43 for more projects"
-
+# --- 1. Check for Git ---
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host "Git not found. Installing Git via Chocolatey..."
+
+    # Check if Chocolatey exists
     if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
         Write-Host "Chocolatey not found. Installing Chocolatey first..."
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     }
+
+    # Install Git via Chocolatey
     choco install git -y
 } else {
     Write-Host "Git is already installed."
 }
 
-
-$RepoURL = "https://github.com/Vishal-43/ChitchatCli.git"
+# --- 2. Clone the repo ---
+$RepoURL = "https://github.com/Vishal-43/ChitchatCli"
 $InstallDir = "$env:USERPROFILE\chitchat"
 
 if (Test-Path $InstallDir) {
@@ -28,12 +29,16 @@ if (Test-Path $InstallDir) {
     git clone $RepoURL $InstallDir
 }
 
+# --- 3. Add folder to PATH ---
+$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
 
-$CurrentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-if (-not $CurrentPath.Split(";") -contains $InstallDir) {
+# Normalize paths to avoid duplicates
+$Paths = $UserPath.Split(";") | ForEach-Object { $_.Trim() }
+if (-not ($Paths -contains $InstallDir)) {
     Write-Host "Adding chitchat folder to PATH..."
-    [Environment]::SetEnvironmentVariable("PATH", "$CurrentPath;$InstallDir", "User")
-    Write-Host "PATH updated. You may need to restart your terminal to use 'chitchat'."
+    $NewPath = "$UserPath;$InstallDir"
+    [Environment]::SetEnvironmentVariable("Path", $NewPath, "User")
+    Write-Host "PATH updated. Please restart PowerShell to use 'chitchat'."
 } else {
     Write-Host "chitchat is already in PATH."
 }
