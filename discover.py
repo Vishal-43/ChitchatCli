@@ -7,8 +7,10 @@ DISCOVERY_MSG = b"CHITCHAT_DISCOVERY_REQUEST"
 RESPONSE_PREFIX = b"CHITCHAT_SERVER|"
 
 def broadcast_discovery(tcp_port):
-    udp = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    udp.sendto(b"DISCOVER_CHITCHAT_SERVER", ("255.255.255.255", broadcast_port))
+
     msg = f"CHITCHAT_SERVER|{tcp_port}"
     while True:
         udp.sendto(msg.encode('utf-8'), ('<broadcast>', broadcast_port))
