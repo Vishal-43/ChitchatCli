@@ -17,7 +17,7 @@ def broadcast_discovery(tcp_port):
 def discover_servers(timeout=5):
     udp = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    udp.bind(("",broadcast_port))
+    udp.bind(("0.0.0.0",broadcast_port))
     udp.settimeout(timeout)
     start_time = time.time()
     found = {}
