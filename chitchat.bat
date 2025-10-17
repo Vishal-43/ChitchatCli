@@ -18,7 +18,7 @@ python "%~dp0\start.py" %*
 goto exit
 :join
 echo Joining a server...
-python "%~dp0\start1.py" %*
+python "%~dp0start1.py" %*
 
 goto exit
 :exit
