@@ -1,6 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import threading
 import server
-
+IDLE_TIMEOUT = 300
+last_activity = datetime.now()
+running = True
 
 def broadcast(message, sender=None):
     with server.LOCK:
@@ -50,10 +54,14 @@ def accept_clients():
     if server.SERVER_SOCKET is None:
         print("SERVER_SOCKET is None. Start the server first.")
         return
-
+    global running
     print("Waiting for clients...")
-    while True:
+    while running:
+        if datetime.now() - last_activity > timedelta(seconds=IDLE_TIMEOUT):
+            print("Server idle for 5 minutes. Shutting down...")
+            break
         try:
+            
             client, address = server.SERVER_SOCKET.accept()
             print(f"Connection from {address}")
 
@@ -79,8 +87,8 @@ def accept_clients():
                 server.clients[client] = username
                 server.nicknames.add(username)
 
-            print(f"✅ {username} joined from {address}")
-            broadcast(f"🎉 {username} joined the chat!", sender=client)
+            print(f"{username} joined from {address}")
+            broadcast(f"{username} joined the chat!", sender=client)
             client.send("Connected! Type /quit to leave.".encode("utf-8"))
 
            
@@ -88,4 +96,26 @@ def accept_clients():
             thread.start()
 
         except Exception as e:
-            print(f"⚠️ Error accepting client: {e}")
+            print(f" {e}")
+
+
+def stop():
+    while True:
+        cmd = input()
+        if cmd.strip().lower() == "/stop":
+            print("Shutting down server...")
+            global running
+            running = False
+            print("Closing all client connections...")
+            with server.LOCK:
+                for c in list(server.clients.keys()):
+                    try:
+                        c.send("Server is shutting down.".encode("utf-8"))
+                        c.close()
+                    except:
+                        pass
+                server.clients.clear()
+
+            server.SERVER_SOCKET.close()
+            print("Server terminated.")
+threading.Thread(target=stop, daemon=True).start()

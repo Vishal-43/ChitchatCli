@@ -2,6 +2,7 @@ import socket
 import threading
 import getpass
 from datetime import datetime
+from discover import broadcast_discovery
 
 
 clients = {} 
@@ -38,9 +39,12 @@ def start():
         s.bind(("0.0.0.0", SERVER_PORT))
         s.listen()
         SERVER_SOCKET = s
-        print(f"✅ Server started on port {SERVER_PORT}")
+        print(f"Server started on port {SERVER_PORT}")
+
+        # Start broadcasting server presence
+        threading.Thread(target=broadcast_discovery, args=(SERVER_PORT,), daemon=True).start()
     except Exception as e:
-        print(f"❌ Failed to start server: {e}")
+        print(f"Failed to start server: {e}")
         return
 
     
@@ -48,3 +52,4 @@ def start():
     chat.accept_clients()
 
 
+            

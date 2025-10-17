@@ -14,12 +14,12 @@ echo Invalid choice. Please try again.
 goto exit
 :host
 python start.py
-REM Add commands to host a server here
+
 goto exit
 :join
 echo Joining a server...
 python start2.py
-REM Add commands to join a server here
+
 goto exit
 :exit
 echo Exiting...
