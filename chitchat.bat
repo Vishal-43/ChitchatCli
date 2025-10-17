@@ -13,12 +13,12 @@ if "%choice%"=="3" goto exit
 echo Invalid choice. Please try again.
 goto exit
 :host
-python start.py
+python "%~dp0\start.py" %*
 
 goto exit
 :join
 echo Joining a server...
-python start2.py
+python "%~dp0\start1.py" %*
 
 goto exit
 :exit
