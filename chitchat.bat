@@ -11,13 +11,14 @@ if "%choice%"=="1" goto host
 if "%choice%"=="2" goto join
 if "%choice%"=="3" goto exit
 echo Invalid choice. Please try again.
-goto end
+goto exit
 :host
-python server.py
+python start.py
 REM Add commands to host a server here
 goto exit
 :join
 echo Joining a server...
+python start2.py
 REM Add commands to join a server here
 goto exit
 :exit

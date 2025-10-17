@@ -1,32 +1,50 @@
-import socket 
+import socket
 import threading
-import time 
-from datetime import datetime 
 import getpass
-
-while True:
-    try:
-        server_id = int(input("enter a server id (1024-65535): "))
-        if 1024 <= server_id <= 65535:
-            break
-        else:
-            print("please enter a valid port number between 1024 and 65535")
-    except ValueError:
-        print("please enter a valid integer port number")
+from datetime import datetime
 
 
-password = getpass.getpass("set a password for the server:")
-if not password:
-    print("password cannot be empty. exiting...")
-    exit()
-try:
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('0.0.0.0',server_id))
-    server.listen()
-    print(f"server started on port {server_id}")
-except Exception as e:
-    print(f"failed to start server: {e}")
-    exit()
+clients = {} 
+nicknames = set()
+LOCK = threading.Lock()
+SERVER_SOCKET = None
+PASSWORD = None
+SERVER_PORT = None
 
+
+def start():
+    global SERVER_SOCKET, PASSWORD, SERVER_PORT
+
+   
+    while True:
+        try:
+            SERVER_PORT = int(input("Enter server port (1024–65535): "))
+            if 1024 <= SERVER_PORT <= 65535:
+                break
+            print("Port must be in range 1024–65535.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
 
     
+    PASSWORD = getpass.getpass("Set a password: ").strip()
+    if not PASSWORD:
+        print("Password cannot be empty.")
+        return
+
+    
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(("0.0.0.0", SERVER_PORT))
+        s.listen()
+        SERVER_SOCKET = s
+        print(f"✅ Server started on port {SERVER_PORT}")
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        return
+
+    
+    import chat
+    chat.accept_clients()
+
+
